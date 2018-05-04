@@ -10,6 +10,7 @@ env:
 
 script:
 - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
+- ls -la ; pwd ;
 - docker build -t hello_world:${TRAVIS_BRANCH} .
 
 after_script:
