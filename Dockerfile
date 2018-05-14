@@ -1,3 +1,4 @@
-FROM scratch
-COPY build/hello /
+FROM alpine:latest
+
+COPY hello /
 CMD ["/hello"]
