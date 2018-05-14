@@ -10,7 +10,7 @@ os:
 #
 script:
 - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
-- docker build -t hello_world:${TRAVIS_BRANCH} .
+- docker build -t hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH} .
 
 after_script:
 - docker images
