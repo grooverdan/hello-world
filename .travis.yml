@@ -22,7 +22,7 @@ after_success:
 - |
   if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
     curl -Lo travis_after_all.py https://raw.github.com/dmakhno/travis_after_all/master/travis_after_all.py
-    python travis_after_all.py https://travis.ibm.com/api
+    DOCKER_USERNAME='' DOCKER_PASSWORD='' python travis_after_all.py https://travis.ibm.com/api
     export $(cat .to_export_back)
     if [[ "$BUILD_LEADER" == "YES" ]]; then
       if [[ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ]]; then
