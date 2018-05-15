@@ -10,7 +10,7 @@ os:
 #
 script:
 - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
-- docker build -t hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
+- docker build -t "$DOCKER_USERNAME"/hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
 
 after_script:
 - docker images
@@ -18,7 +18,7 @@ after_script:
 after_success:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME}
-- REPO=https://index.docker.io/v2/danielblack
+- REPO=https://index.docker.io/v2/"${DOCKER_USERNAME}"
 - |
   if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
     curl -Lo travis_after_all.py https://raw.github.com/dmakhno/travis_after_all/master/travis_after_all.py
@@ -27,8 +27,8 @@ after_success:
     if [[ "$BUILD_LEADER" == "YES" ]]; then
       if [[ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ]]; then
         echo "All jobs succeeded! Creating multi arch image..."
-        docker manifest create ${REPO}:hello_world:${TRAVIS_BRANCH} ${REPO}:hello_world:${TRAVIS_BRANCH}_linux ${REPO}:hello_world:${TRAVIS_BRANCH}_linux-ppc64le
-        docker manifest push   ${REPO}:hello_world:${TRAVIS_BRANCH}
+        docker manifest create ${REPO}/hello_world:${TRAVIS_BRANCH} ${REPO}/hello_world:${TRAVIS_BRANCH}_linux ${REPO}/hello_world:${TRAVIS_BRANCH}_linux-ppc64le
+        docker manifest push   ${REPO}/hello_world:${TRAVIS_BRANCH}
       else
         echo "Some jobs failed" && exit 1
       fi
