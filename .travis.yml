@@ -8,31 +8,26 @@ os:
 #  matrix:
 #    secure: vPTqHwuqUu8GX/28TIkSYGmWtIt8M+5vCA12NaX6XMPx2zjDx74WZlacWD9T2X8HCz1cDjWd39ai/BhhS7J/aR8wEN93bm/WdJJhhYuJ4G6P+6Y/U70fJqCWuLpcRt5aIRF9ktq4JoiZYNt8ZMn3LcsprqtyfiNTQjG0DwgTZ8OIdMVL//PDHQlT5F36ehFYUkDZ4mUSaaP/edm4zs6bWqDD1Jox4IhS2xYj4l3g+rR+fPfay9s3nNYgT0JWkzRkNEq+WqCJCvYry+6FMMzRkvBHQF6kFZxzVmsGGkpWMetlRcec9N9/V9CjW7CBFsJOuLRzwm6TLgUTjrtHgRZNFyqkdTI62yYFSHvIMAxM3X6yRXEiAfwYvI96xN3FXCng7RoT1AziurdT5ynLBpqi0KNjv0AyUtLjZIgZja8Jyze/4rMU4GfXaWjljHxxeAnSdw0CCKZoFv6ETlOA25VgbmO058T54OIjSK9Jp9t3foHVHwqYmkkG+A/p0ceDjs1EH4viyp3PRkd5tPF7g0aLIjA47Kh5kZO2ywDto5oHPdhjeIdlvu1GV+nOeJ3XxXD8xCOgI8zn7fx6kLqfhM38Md+N50agbzApm/QJyx5am+voBqXD1o2L9WPJTmRPFz11aZn+DkVNsQpHf2H19C5aGSuZ9RDUdE4ySMFFIUH7Up8=
 #
-script:
-- $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
-- docker build -t "$DOCKER_USERNAME"/hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
-
-after_script:
-- docker images
-
-after_success:
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker push hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME}
-- REPO=https://index.docker.io/v2/"${DOCKER_USERNAME}"
-- |
-  if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
-    curl -Lo travis_after_all.py https://raw.github.com/dmakhno/travis_after_all/master/travis_after_all.py
-    DOCKER_USERNAME='' DOCKER_PASSWORD='' python travis_after_all.py https://travis.ibm.com/api
-    export $(cat .to_export_back)
-    if [[ "$BUILD_LEADER" == "YES" ]]; then
-      if [[ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ]]; then
-        echo "All jobs succeeded! Creating multi arch image..."
-        docker manifest create ${REPO}/hello_world:${TRAVIS_BRANCH} ${REPO}/hello_world:${TRAVIS_BRANCH}_linux ${REPO}/hello_world:${TRAVIS_BRANCH}_linux-ppc64le
-        docker manifest push   ${REPO}/hello_world:${TRAVIS_BRANCH}
-      else
-        echo "Some jobs failed" && exit 1
-      fi
-    fi
-  fi
+jobs:
+  include:
+    - stage: build
+      script:
+      - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
+      - docker build -t "$DOCKER_USERNAME"/hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
+      after_script:
+      - docker images
+      after_success:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker push hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME}
+    - stage: build
+      if: os = linux-ppc64
+      script:
+      - REPO=https://index.docker.io/v2/"${DOCKER_USERNAME}"
+      - |
+         if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
+           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+           docker manifest create ${REPO}/hello_world:${TRAVIS_BRANCH} ${REPO}/hello_world:${TRAVIS_BRANCH}_linux ${REPO}/hello_world:${TRAVIS_BRANCH}_linux-ppc64le
+           docker manifest push   ${REPO}/hello_world:${TRAVIS_BRANCH}
+         fi
 
 # vim:set et ts=2 sw=2:
