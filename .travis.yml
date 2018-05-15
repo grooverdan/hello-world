@@ -10,7 +10,6 @@ os:
 #
 jobs:
   include:
-    - stage: build
       script:
       - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
       - docker build -t "$DOCKER_USERNAME"/hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
