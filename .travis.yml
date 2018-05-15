@@ -18,7 +18,7 @@ after_script:
 after_success:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME}
-- REPO=https://index.docker.io/v2/
+- REPO=https://index.docker.io/v2/danielblack
 - |
   if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
     curl -Lo travis_after_all.py https://raw.github.com/dmakhno/travis_after_all/master/travis_after_all.py
