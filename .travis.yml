@@ -3,6 +3,7 @@ services: docker
 os:
 - linux-ppc64le
 - linux
+sudo: false
 
 #env:
 #  matrix:
