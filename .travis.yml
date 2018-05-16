@@ -19,7 +19,7 @@ jobs:
       after_success:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - docker push hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME}
-    - stage: build
+    - stage: dockerpush
       if: os = linux-ppc64
       script:
       - REPO=https://index.docker.io/v2/"${DOCKER_USERNAME}"
