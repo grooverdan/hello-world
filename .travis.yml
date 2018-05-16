@@ -21,6 +21,7 @@ jobs:
            mkdir -p ~/.docker
            echo '{ "experimental" : "enabled" }' > ~/.docker/config.json
            docker manifest create ${REPO}/hello_world:${TRAVIS_BRANCH} ${REPO}/hello_world:${TRAVIS_BRANCH}_linux ${REPO}/hello_world:${TRAVIS_BRANCH}_linux-ppc64le
+           docker manifest inspect  ${REPO}/hello_world:${TRAVIS_BRANCH}
            docker manifest push   ${REPO}/hello_world:${TRAVIS_BRANCH}
          fi
 
