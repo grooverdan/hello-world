@@ -2,7 +2,8 @@ language: c
 services: docker
 os:
 - linux-ppc64le
-- linux
+
+#- linux
 
 #env:
 #  matrix:
