@@ -9,12 +9,13 @@ env:
   global:
     - REPO="${DOCKER_USERNAME}"
 
+# DOCKER_USERNAME and DOCKER_PASSWORD need to be secure environment variables either above
+# or in the settings within travis.
+
 script:
 - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
 - docker build -t "$DOCKER_USERNAME"/hello_world:${TRAVIS_BRANCH}_${TRAVIS_OS_NAME} .
-after_script:
 - docker images
-after_success:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push "$REPO"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH}
 
