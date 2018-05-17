@@ -3,7 +3,6 @@ services: docker
 os:
 - linux-ppc64le
 - linux
-- osx
 sudo: false
 
 env:
