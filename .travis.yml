@@ -1,8 +1,8 @@
 language: c
 services: docker
 os:
-- linux-ppc64le
 - linux
+- linux-ppc64le
 sudo: false
 
 env:
