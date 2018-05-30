@@ -25,9 +25,9 @@ jobs:
       script:
       - |
          if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
-           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
            mkdir -p ~/.docker
            echo '{ "experimental" : "enabled" }' > ~/.docker/config.json
+           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
            MANIFEST="${REPO}/hello_world:${TRAVIS_BRANCH}"
            docker manifest create  "${MANIFEST}" "${REPO}/hello_world_linux:${TRAVIS_BRANCH}" "${REPO}/hello_world_linux-ppc64le:${TRAVIS_BRANCH}"
            docker manifest inspect "${MANIFEST}"
