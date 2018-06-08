@@ -14,10 +14,15 @@ env:
 
 script:
 - $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
-- docker build -t "$DOCKER_USERNAME"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH} .
-- docker images
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker push "$REPO"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH}
+
+after_success:
+- |
+   if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
+     docker build -t "$DOCKER_USERNAME"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH} .
+     docker images
+     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+     docker push "$REPO"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH}
+   fi
 
 jobs:
   include:
