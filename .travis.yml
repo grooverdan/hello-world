@@ -1,37 +1,32 @@
-language: c
-services: docker
-os:
-- linux-ppc64le
-- linux
+dist: trusty
 sudo: false
-
+language: c
+service:
+  - docker
 env:
-  global:
-    - REPO="${DOCKER_USERNAME}"
+  matrix:
+    - BASE=ubuntu:14.04
+    - BASE=ubuntu:16.04
+    - BASE=ubuntu:18.04
+    - BASE=ubuntu:devel
 
-# DOCKER_USERNAME and DOCKER_PASSWORD need to be secure environment variables either above
-# or in the settings within travis.
+os:
+  - linux
 
 script:
-- $CC -static -Os -nostartfiles -fno-asynchronous-unwind-tables -Wno-implicit-function-declaration -o hello hello.c
-- docker build -t "$DOCKER_USERNAME"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH} .
-- docker images
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker push "$REPO"/hello_world_${TRAVIS_OS_NAME}:${TRAVIS_BRANCH}
+  - |
+    docker build -t build-$BASE - <<EOF
+    FROM $BASE
+    RUN apt-get update && apt-get install -y gcc flex bison sparse && rm -rf /var/lib/apt/lists/*
+    VOLUME /source
+    WORKDIR /source
+    ENV CROSS_COMPILE=
+    ENV ARCH powerpc
+    ENV DEFCONFIG ppc64le_defconfig
+    ENV KBUILD_OUTPUT build
+    ENV SILENT=0
+    ENV KBUILD_CHECKSRC=2
+    CMD arch/powerpc/tools/ci/build.sh
+    EOF
+  - docker run --volume "${PWD}":/source --env JFACTOR=$(nproc) build-$BASE
 
-jobs:
-  include:
-    - stage: build
-      script:
-      - |
-         if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
-           mkdir -p ~/.docker
-           echo '{ "experimental" : "enabled" }' > ~/.docker/config.json
-           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-           MANIFEST="${REPO}/hello_world:${TRAVIS_BRANCH}"
-           docker manifest create  "${MANIFEST}" "${REPO}/hello_world_linux:${TRAVIS_BRANCH}" "${REPO}/hello_world_linux-ppc64le:${TRAVIS_BRANCH}"
-           docker manifest inspect "${MANIFEST}"
-           docker manifest push    "${MANIFEST}"
-         fi
-
-# vim:set et ts=2 sw=2:
