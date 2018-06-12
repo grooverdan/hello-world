@@ -27,10 +27,15 @@ after_success:
 jobs:
   include:
     - stage: build_multi_arch_docker_image
+      # only ppc64le currently has a docker new enough to support experimental manifests
+      os: linux-ppc64le
+      # minimise things that the stage doesn't require.
+      cache: false
+      before_install: true
+      install: true
       script:
       - |
          if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" ]]; then
-           mkdir -p ~/.docker
            echo '{ "experimental" : "enabled" }' > ~/.docker/config.json
            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
            MANIFEST="${REPO}/hello_world:${TRAVIS_BRANCH}"
